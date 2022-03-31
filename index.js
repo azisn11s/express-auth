@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
+const databaseConnection = require('./utils/database');
+
 
 // Use for x-www-form-urlencoded
 // app.use(bodyParser.urlencoded({ extended: true }));
@@ -10,7 +12,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Set anti CORS
-app.use((req, res, next)=> {
+app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -24,4 +26,15 @@ const authRoutes = require('./routes/auth')
 
 app.use('/auth', authRoutes);
 
-app.listen(8080);
+
+
+databaseConnection
+    // .sync({ force: true })
+    .sync()
+    .then(result => {
+        // console.log('RESULT CONNECTION', result);
+        app.listen(8080);
+    })
+    .catch(err => {
+        console.log(err);
+    });
