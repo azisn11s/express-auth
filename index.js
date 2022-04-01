@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const databaseConnection = require('./utils/database');
+const User = require('./models/user');
 
 
 // Use for x-www-form-urlencoded
@@ -32,7 +33,11 @@ databaseConnection
     // .sync({ force: true })
     .sync()
     .then(result => {
-        // console.log('RESULT CONNECTION', result);
+        console.log('CONNECTION RESULT', result);
+        return User.findByPk(1);
+    })
+    .then(user => {
+        console.log('USER CALLED', user);
         app.listen(8080);
     })
     .catch(err => {
