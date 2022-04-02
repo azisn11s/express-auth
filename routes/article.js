@@ -6,9 +6,9 @@ const {
 const router = express.Router()
 const articleController = require('../controllers/article')
 
-router.get('/articles');
+router.get('/articles', articleController.index);
 
-router.get('/articles/:id');
+router.get('/articles/:id', articleController.show);
 
 /**
  * Create an article
