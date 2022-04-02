@@ -3,7 +3,9 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const databaseConnection = require('./utils/database');
+const isAuth = require('./middleware/is-auth');
 const User = require('./models/user');
+const Article = require('./models/article');
 
 
 // Use for x-www-form-urlencoded
@@ -21,11 +23,13 @@ app.use((req, res, next) => {
 });
 
 // Routes
-const authRoutes = require('./routes/auth')
+const authRoutes = require('./routes/auth');
+const articleRoutes = require('./routes/article');
 
 
 
 app.use('/auth', authRoutes);
+app.use(isAuth, articleRoutes);
 
 
 

@@ -5,7 +5,6 @@ const {
 
 const router = express.Router()
 const authController = require('../controllers/auth')
-const User = require('../models/user');
 
 /**
  * User - register
@@ -48,4 +47,11 @@ router.post('/login', [
     body('email').isEmail().withMessage("The email should valid email address."),
     body('password').notEmpty()
 ], authController.login)
+
+
+/**
+ * User - logout
+ */
+router.post('/logout');
+
 module.exports = router;
