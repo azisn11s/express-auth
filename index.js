@@ -2,6 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
+
+const dotenv = require('dotenv');
+dotenv.config();
+
 const databaseConnection = require('./utils/database');
 const isAuth = require('./middleware/is-auth');
 
@@ -56,7 +60,7 @@ databaseConnection
     .then(user => {
         console.log('USER CALLED', user);
         
-        app.listen(8080);
+        app.listen(process.env.APP_PORT);
     })
     .then(result=> {
         console.log('SETELAH RUNNING', result);
