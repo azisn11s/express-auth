@@ -3,7 +3,19 @@ const {
 } = require('express-validator');
 
 const Article = require('../models/article');
+const Category = require('../models/category');
+const ArticleCategories = require('../models/article_category');
+Article.belongsToMany(Category, { through: ArticleCategories });
+Category.belongsToMany(Article, { through: ArticleCategories });
+// const Categories = Article.hasMany(Category);
 
+/**
+ * List of articles 
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.index = (req, res, next)=>{
     const page = req.query.page || 1;
     const perPage = req.query.per_page || 10;
@@ -11,7 +23,8 @@ exports.index = (req, res, next)=>{
     Article.findAll({
         limit: perPage,
         offset: (page - 1) * perPage,
-        attributes: ['id', 'title', 'captions']
+        attributes: ['id', 'title', 'captions'],
+        include: [Category]
     }).then(result=> {
         console.log(result);
         return res.status(200).json(result);
@@ -21,10 +34,17 @@ exports.index = (req, res, next)=>{
 
 }
 
+/**
+ * Show detail an article
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.show = (req, res, next)=>{
     const articleId = req.params.id;
 
-    Article.findByPk(articleId).then(result=> {
+    Article.findByPk(articleId, {include: [Category]}).then(result=> {
         
         if (!result) {
             return res.status(404).json({
@@ -39,6 +59,14 @@ exports.show = (req, res, next)=>{
     })
 }
 
+/**
+ * Create article
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 exports.store = (req, res, next)=>{
     const validationErrors = validationResult(req);
 
@@ -51,21 +79,29 @@ exports.store = (req, res, next)=>{
 	const {
 		title,
 		captions,
-		content
+		content,
+        category_id
 	} = req.body;
 
-    try {
-        Article.create({
-            title: title,
-            captions: captions,
-            content: content,
-            created_at: new Date()
-        }).then(result=> {
-            return res.status(200).json(result);
+    Article.create({
+        title: title,
+        captions: captions,
+        content: content,
+        created_at: new Date(),
+    }).then(articleCreated=> {
+        return Category.findByPk(category_id).then(category=> {
+            category.addArticles(articleCreated);
+            return articleCreated
         }).catch(error=> {
+            console.log('ERROR finding category');
             return res.status(500).json(error);
-        })
-    } catch (error) {
-        throw error;
-    }
+        });
+    }).then(result=> {
+        return Article.findByPk(result.id);
+    }).then(result=> {
+        return res.status(200).json(result);
+    })
+    .catch(error=> {
+        return res.status(500).json(error);
+    })
 }

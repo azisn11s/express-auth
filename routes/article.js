@@ -16,7 +16,8 @@ router.get('/articles/:id', articleController.show);
 router.post('/articles', [
     body('title').isLength({min: 5}),
     body('captions').isLength({min: 10}),
-    body('content').isLength({min: 20})
+    body('content').isLength({min: 20}),
+    body('category_id').isNumeric()
 ], articleController.store);
 
 module.exports = router;
